@@ -1,8 +1,7 @@
+import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.Test;
-import site.stellarburgers.nomoreparties.RequestBodyOrder;
-import site.stellarburgers.nomoreparties.ResponseBodyOrder;
-import site.stellarburgers.nomoreparties.User;
+import site.stellarburgers.nomoreparties.*;
 
 import java.util.List;
 
@@ -10,62 +9,62 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertTrue;
 
 public class CreateOrderTest extends BaseTest {
+    private String ingredient;
+    private String ingredient1;
+    private String ingredient2;
+
+
+    @Override
+    public void setUp() {
+        RestAssured.baseURI = "https://stellarburgers.nomoreparties.site/";
+        user = new User(email, password, name);
+        accessToken = user.createUser().then().extract().path("accessToken");
+        ingredient = new GetAllIngredients().getAllIngredients().as(RequestAllIngredients.class).getData().get(0).get_id();
+        ingredient1 = new GetAllIngredients().getAllIngredients().as(RequestAllIngredients.class).getData().get(1).get_id();
+        ingredient2 = new GetAllIngredients().getAllIngredients().as(RequestAllIngredients.class).getData().get(2).get_id();
+    }
 
 
     //    с авторизацией,
     @Test
     public void checkCreateOrderWithAuth() {
-        user = new User("yaa33n@test1.ru", "Pass1234", "Nick1");
-        accessToken = user.createUser().then().extract().path("accessToken");
 
-        RequestBodyOrder requestBodyOrder = new RequestBodyOrder(List.of("61c0c5a71d1f82001bdaaa72",
-                "61c0c5a71d1f82001bdaaa6f",
-                "61c0c5a71d1f82001bdaaa6d"));
+        RequestBodyOrder requestBodyOrder = new RequestBodyOrder(List.of(ingredient, ingredient1, ingredient2));
         Response response = requestBodyOrder.createOrder(accessToken);
 
         response.then().assertThat().statusCode(200)
                 .and().body("success", equalTo(true));
-        assertTrue(response.as(ResponseBodyOrder.class).getOrder().getNumber() != 0);
+        assertTrue(response.as(ResponseBodyOrder.class).getOrder().getNumber() > 0);
     }
 
 //    без авторизации,
 
     @Test
     public void checkCreateOrderWithoutAuth() {
-        user = new User("yaane@test1.ru", "Pass1234", "Nick1");
-        accessToken = user.createUser().then().extract().path("accessToken");
 
-        RequestBodyOrder requestBodyOrder = new RequestBodyOrder(List.of("61c0c5a71d1f82001bdaaa72",
-                "61c0c5a71d1f82001bdaaa6f",
-                "61c0c5a71d1f82001bdaaa6d"));
+        RequestBodyOrder requestBodyOrder = new RequestBodyOrder(List.of(ingredient, ingredient1, ingredient2));
         Response response = requestBodyOrder.createOrder(" ");
 
         response.then().assertThat().statusCode(200)
                 .and().body("success", equalTo(true));
-        assertTrue(response.as(ResponseBodyOrder.class).getOrder().getNumber() != 0);
+        assertTrue(response.as(ResponseBodyOrder.class).getOrder().getNumber() > 0);
     }
 
     //    с ингредиентами,
     @Test
     public void checkCreateOrderWithIngredients() {
-        user = new User("yaane@test1.ru", "Pass1234", "Nick1");
-        accessToken = user.createUser().then().extract().path("accessToken");
 
-        RequestBodyOrder requestBodyOrder = new RequestBodyOrder(List.of("61c0c5a71d1f82001bdaaa72",
-                "61c0c5a71d1f82001bdaaa6f",
-                "61c0c5a71d1f82001bdaaa6d"));
+        RequestBodyOrder requestBodyOrder = new RequestBodyOrder(List.of(ingredient, ingredient1, ingredient2));
         Response response = requestBodyOrder.createOrder(accessToken);
 
         response.then().assertThat().statusCode(200)
                 .and().body("success", equalTo(true));
-        assertTrue(response.as(ResponseBodyOrder.class).getOrder().getNumber() != 0);
+        assertTrue(response.as(ResponseBodyOrder.class).getOrder().getNumber() > 0);
     }
 //    без ингредиентов,
 
     @Test
     public void checkCreateOrderWithoutIngredients() {
-        user = new User("yaane@test1.ru", "Pass1234", "Nick1");
-        accessToken = user.createUser().then().extract().path("accessToken");
 
         RequestBodyOrder requestBodyOrder = new RequestBodyOrder();
         Response response = requestBodyOrder.createOrder(accessToken);
@@ -77,12 +76,7 @@ public class CreateOrderTest extends BaseTest {
     //    с неверным хешем ингредиентов.
     @Test
     public void checkCreateOrderWithInvalidHash() {
-        user = new User("yaane@test1.ru", "Pass1234", "Nick1");
-        accessToken = user.createUser().then().extract().path("accessToken");
-
-        RequestBodyOrder requestBodyOrder = new RequestBodyOrder(List.of("61c0c5a33371d1f82001bdaaa72",
-                "61c0c5a71d1f8200144bdaaa6f",
-                "61c0c5a71d1f832001bdaaa6d"));
+        RequestBodyOrder requestBodyOrder = new RequestBodyOrder(List.of(ingredient + "112", ingredient1 + "ett", ingredient2 + "125"));
         Response response = requestBodyOrder.createOrder(accessToken);
 
         response.then().assertThat().statusCode(500);

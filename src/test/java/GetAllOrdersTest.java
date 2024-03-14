@@ -18,7 +18,7 @@ public class GetAllOrdersTest extends BaseTest {
     @Override
     public void setUp() {
         RestAssured.baseURI = "https://stellarburgers.nomoreparties.site/";
-        this.user = new User("yaa32n@test1.ru", "Pass1234", "Nick1");
+        this.user = new User(email, password, name);
         this.accessToken = user.createUser().then().extract().path("accessToken");
         RequestBodyOrder requestBodyOrder = new RequestBodyOrder(List.of("61c0c5a71d1f82001bdaaa72",
                 "61c0c5a71d1f82001bdaaa6f",

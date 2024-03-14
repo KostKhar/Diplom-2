@@ -8,10 +8,11 @@ public class CreateUserTest extends BaseTest {
 
     private Response response;
 
+
     //    создать уникального пользователя;
     @Test
     public void createDistinctUser() {
-        user = new User("ya000ndex@test.com", "Pass1234", "Nick_Name");
+        user = new User(email, password, name);
         response = user.createUser();
         accessToken = response.then().extract().path("accessToken");
 
@@ -21,7 +22,7 @@ public class CreateUserTest extends BaseTest {
     //    создать пользователя, который уже зарегистрирован;
     @Test
     public void createDoubleUser() {
-        user = new User("yandexxxx@test.com", "Pass1234", "Nick_Name");
+        user = new User(email, password, name);
         accessToken = user.createUser().then().extract().path("accessToken");
 
         user.createUser().then().assertThat().statusCode(403)
@@ -33,7 +34,7 @@ public class CreateUserTest extends BaseTest {
     //    создать пользователя и не заполнить одно из обязательных полей
     @Test
     public void createUserWithoutName() {
-        user = new User("yandex@test.com", "Pass1234");
+        user = new User(email, password);
 
         user.createUser().then().statusCode(403)
                 .body("success", equalTo(false))
