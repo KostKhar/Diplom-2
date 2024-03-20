@@ -12,7 +12,7 @@ public class BaseTest {
     protected Faker faker = new Faker();
     protected String email = faker.internet().emailAddress();
     protected String password = faker.internet().password();
-    protected String name = faker.internet().password();
+    protected String name = faker.name().firstName();
 
     @Before
     public void setUp() {
